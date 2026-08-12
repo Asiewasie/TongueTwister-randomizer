@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tongue twister randomizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: transparent;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    min-height: 100vh;
+    font-family: "Mochiy Pop One", sans-serif;
+    padding: 1rem;
+  }
+
+  #twister-wrap {
+    max-width: 90vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 140px;
+  }
+
+  #twister {
+    font-family: "Mochiy Pop One", sans-serif;
+    /* base size 40px, shrinks a bit for longer sentences via JS */
+    font-size: 40px;
+    color: #1F2933;
+    text-align: center;
+    line-height: 1.3;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  #twister.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .controls {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  #speak-btn {
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+
+  button {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1F2933;
+    background: #F3E3D2;
+    border: none;
+    border-radius: 999px;
+    padding: 0.75rem 2rem;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+  }
+
+  button:hover { background: #ECD4B6; }
+  button:active { transform: scale(0.96); }
+
+  button:focus-visible {
+    outline: 3px solid #C97A2B;
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div id="twister-wrap">
+  <div id="twister">&nbsp;</div>
+</div>
+<div class="controls">
+  <button onclick="pickTwister()">Next</button>
+  <button id="speak-btn" onclick="speakTwister()" title="Read aloud" aria-label="Read aloud">🔊</button>
+</div>
+
+<script>
+  // ---- EDIT YOUR TONGUE TWISTER LIST HERE ----
+  const twisters = [
+    "She sells seashells by the seashore",
+    "Which witch wished which wicked wish?",
+    "Santa's sleigh slides swiftly through snowy skies.",
+    "Peter Piper picked a peck of pickled peppers.",
+    "Red lorry, yellow lorry.",
+    "A big black bug bit a big black bear.",
+    "Three free throws thrilled the three friends.",
+    "A proper copper coffee pot.",
+    "Betty bought a bit of butter, but the butter was bitter."
+  ];
+  // ---------------------------------------------
+
+  // Base size in px. Long sentences shrink a bit so they don't overflow.
+  const BASE_SIZE = 40;
+  const SHRINK_THRESHOLD = 45; // characters
+  const MIN_SIZE = 26;
+
+  // Starts at -1 so the first click shows twisters[0], the first item in your list.
+  let currentIndex = -1;
+  let currentText = "";
+
+  function pickTwister() {
+    currentIndex = (currentIndex + 1) % twisters.length;
+    const text = twisters[currentIndex];
+    currentText = text;
+    const el = document.getElementById("twister");
+
+    let size = BASE_SIZE;
+    if (text.length > SHRINK_THRESHOLD) {
+      const over = text.length - SHRINK_THRESHOLD;
+      size = Math.max(MIN_SIZE, BASE_SIZE - over * 0.4);
+    }
+
+    el.classList.remove("show");
+    el.style.fontSize = size + "px";
+    el.textContent = text;
+
+    requestAnimationFrame(() => {
+      el.classList.add("show");
+    });
+  }
+
+  function speakTwister() {
+    if (!currentText) return;
+    if (!("speechSynthesis" in window)) {
+      alert("Sorry, this browser doesn't support read-aloud.");
+      return;
+    }
+    // stop any speech already in progress before starting new
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(currentText);
+    utterance.lang = "en-US";
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+  }
+</script>
+
+</body>
+</html>
