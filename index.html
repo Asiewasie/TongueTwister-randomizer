@@ -156,7 +156,7 @@
     // stop any speech already in progress before starting new
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentText);
-    utterance.lang = "en-US";
+    utterance.lang = "en-GB";
     utterance.rate = 0.9;
     window.speechSynthesis.speak(utterance);
   }
